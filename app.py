@@ -160,14 +160,13 @@ app.register_blueprint(user_bp)
 @app.route('/home')
 def home():
     """Halaman utama yang mengarahkan ke login jika belum masuk."""
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('auth.login'))
-
+    # Selalu arahkan ke dashboard utama. Decorator @login_required akan menangani sisanya.
+    return redirect(url_for('dashboard'))
 
 @app.route('/') # Route ini sekarang menjadi dashboard utama
 @login_required
 def dashboard():
+    """Route utama yang mengarahkan pengguna ke dashboard yang sesuai dengan perannya."""
     if current_user.role == "admin":
         return render_template("admin/admin_dashboard.html")
     elif current_user.role == "staff":
@@ -175,19 +174,19 @@ def dashboard():
     return render_template("user/user_dashboard.html")
 
 
-@app.route('/admin/dashboard')
-@login_required
-def dashboard_admin():
-    if current_user.role != 'admin':
-        return redirect(url_for("dashboard"))
-    return render_template("admin/admin_dashboard.html")
+# @app.route('/admin/dashboard')
+# @login_required
+# def dashboard_admin():
+#     if current_user.role != 'admin':
+#         return redirect(url_for("dashboard"))
+#     return render_template("admin/admin_dashboard.html")
 
 
 # =======================================================
 # 10. RUN SERVER
 # =======================================================
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
 
-    app.run(debug=False)
+    app.run(debug=True)
