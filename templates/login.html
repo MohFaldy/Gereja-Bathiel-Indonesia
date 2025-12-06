@@ -1,0 +1,71 @@
+{% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
+%}
+
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+  <div class="bg-white p-8 shadow-xl rounded-xl w-96">
+    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">
+      Login Akun
+    </h2>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <div class="mb-4">
+      {% for category, message in messages %}
+      <div
+        class="p-3 text-sm rounded {% if category == 'success' %} bg-green-100 text-green-700 border border-green-300 {% elif category == 'danger' %} bg-red-100 text-red-700 border border-red-300 {% else %} bg-gray-100 text-gray-700 border {% endif %}"
+      >
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %} {% endwith %}
+
+    <!-- Login Form -->
+    <form action="" method="POST" class="space-y-4">
+      <!-- 🔒 CSRF Token -->
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Username</label>
+        <input
+          type="text"
+          name="username"
+          class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Masukkan Username"
+          required
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Password</label>
+        <input
+          type="password"
+          name="password"
+          class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Masukkan Password"
+          autocomplete="off"
+          required
+        />
+      </div>
+
+      <button
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
+      >
+        Login
+      </button>
+    </form>
+
+    <p class="mt-4 text-center text-sm text-gray-600">
+      Belum punya akun?
+      <a
+        href="{{ url_for('auth.register') }}"
+        class="text-blue-600 hover:underline"
+      >
+        Daftar di sini
+      </a>
+    </p>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends "base.html" %} {% block title %}Kelola User{% endblock %} {% block
+content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center gap-3">
+      <a
+        href="{{ url_for('dashboard_admin') }}"
+        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition"
+      >
+        ← Kembali ke Dashboard
+      </a>
+      <h1 class="text-3xl font-bold text-blue-800">👑 Kelola User</h1>
+    </div>
+
+    <a
+      href="{{ url_for('auth.logout') }}"
+      class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+    >
+      Logout
+    </a>
+  </div>
+
+  <!-- Form tambah user -->
+  <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">
+      ➕ Tambah User Baru
+    </h2>
+    <form
+      method="POST"
+      action="{{ url_for('admin.add_user') }}"
+      class="grid grid-cols-1 md:grid-cols-5 gap-4"
+    >
+      <!-- 🔒 CSRF Token -->
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <input
+        type="text"
+        name="username"
+        placeholder="Username"
+        class="border rounded p-2 w-full"
+        required
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        class="border rounded p-2 w-full"
+        autocomplete="email"
+        required
+      />
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        class="border rounded p-2 w-full"
+        autocomplete="off"
+        required
+      />
+      <select name="role" class="border rounded p-2 w-full" required>
+        <option value="">Pilih Role</option>
+        <option value="admin">Admin</option>
+        <option value="staff">Staff</option>
+        <option value="user">User</option>
+      </select>
+      <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">
+        Tambah
+      </button>
+    </form>
+  </div>
+
+  <!-- Tabel daftar user -->
+  <div class="bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">📋 Daftar User</h2>
+    <table class="min-w-full border border-gray-300 rounded-lg">
+      <thead class="bg-blue-600 text-white">
+        <tr>
+          <th class="py-2 px-4 text-left">ID</th>
+          <th class="py-2 px-4 text-left">Username</th>
+          <th class="py-2 px-4 text-left">Email</th>
+          <th class="py-2 px-4 text-center">Role</th>
+          <th class="py-2 px-4 text-center">Status</th>
+          <th class="py-2 px-4 text-center">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="py-2 px-4">{{ user.id }}</td>
+          <td class="py-2 px-4">{{ user.username }}</td>
+          <td class="py-2 px-4">{{ user.email }}</td>
+          <td class="py-2 px-4 text-center">
+            <span
+              class="px-2 py-1 text-xs font-semibold rounded-full {{ 'bg-blue-200 text-blue-800' if user.role == 'admin' else 'bg-green-200 text-green-800' if user.role == 'staff' else 'bg-gray-200 text-gray-800' }}"
+              >{{ user.role }}</span
+            >
+          </td>
+          <td class="py-2 px-4 text-center">
+            {% if user.is_verified %}
+            <span
+              class="px-2 py-1 text-xs font-semibold rounded-full bg-green-200 text-green-800"
+              >Terverifikasi</span
+            >
+            {% else %}
+            <span
+              class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-200 text-yellow-800"
+              >Belum Verifikasi</span
+            >
+            {% endif %}
+          </td>
+          <td class="py-2 px-4 text-center">
+            <a
+              href="{{ url_for('admin.delete_user', id=user.id) }}"
+              class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+              onclick="return confirm('Yakin ingin menghapus user ini?')"
+              >Hapus</a
+            >
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center py-4 text-gray-500">
+            Belum ada user.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

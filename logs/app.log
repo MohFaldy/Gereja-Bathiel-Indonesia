@@ -1,0 +1,13 @@
+Gagal mengirim email verifikasi ke wrathaja507@gmail.com: emails/verify_email.html
+Kegagalan validasi form registrasi: {'username': ['Username sudah digunakan!'], 'email': ['Email sudah terdaftar!'], 'confirm_password': ['Konfirmasi password harus diisi.']}
+Kegagalan validasi form registrasi: {'confirm_password': ['Konfirmasi password harus diisi.']}
+Kegagalan validasi form registrasi: {'confirm_password': ['Konfirmasi password harus diisi.']}
+Gagal mengirim email verifikasi ke isro507@gmail.com: emails/verify_email.html
+Gagal mengirim email verifikasi ke wwuthering569@gmail.com: emails/verify_email.html
+Gagal mengirim email verifikasi ke faldy507@gmail.com: emails/verify_email.html
+Admin 'admin' (ID: 1) menambahkan user baru: 'Sherlin' (ID: 9).
+Gagal mengirim email verifikasi ke mohfaldi765@gmail.com: emails/verify_email.html
+Kegagalan validasi form registrasi: {'email': ['Email sudah terdaftar!']}
+Gagal mengirim email verifikasi ke mohfaldi765@gmail.com: emails/verify_email.html
+Kegagalan validasi form registrasi: {'email': ['Email sudah terdaftar!']}
+Kegagalan validasi form registrasi: {'email': ['Email sudah terdaftar!']}

@@ -1,0 +1,243 @@
+{% extends "base.html" %} {% block title %}Manajemen Jemaat{% endblock %} {%
+block content %}
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <h1 class="text-3xl font-bold mb-6 text-gray-800">📋 Manajemen Jemaat</h1>
+
+  <!-- Tombol Kembali ke Dashboard -->
+  <div class="flex justify-between items-center mb-6">
+    <a
+      href="{{ url_for('admin.admin_dashboard') }}"
+      class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg shadow transition"
+    >
+      ← Kembali ke Dashboard
+    </a>
+  </div>
+
+  <!-- ✅ Form Tambah Jemaat -->
+  <div class="bg-white p-6 rounded-lg shadow mb-8">
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">
+      ➕ Tambah Jemaat Baru
+    </h2>
+    <form
+      action="{{ url_for('admin.add_jemaat') }}"
+      method="POST"
+      class="grid grid-cols-1 md:grid-cols-2 gap-4"
+    >
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <div>
+        <label class="block text-gray-700 mb-1">Nama Jemaat</label>
+        <input
+          type="text"
+          name="nama"
+          class="border border-gray-300 rounded-lg w-full p-2"
+          required
+        />
+      </div>
+      <div>
+        <label class="block text-gray-700 mb-1">Tanggal Lahir</label>
+        <input
+          type="date"
+          name="tanggal_lahir"
+          class="border border-gray-300 rounded-lg w-full p-2"
+        />
+      </div>
+      <div>
+        <label class="block text-gray-700 mb-1">Jenis Kelamin</label>
+        <select
+          name="jenis_kelamin"
+          class="border border-gray-300 rounded-lg w-full p-2"
+        >
+          <option value="">Pilih</option>
+          <option value="Laki-laki">Laki-laki</option>
+          <option value="Perempuan">Perempuan</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-gray-700 mb-1">No HP</label>
+        <input
+          type="text"
+          name="no_hp"
+          class="border border-gray-300 rounded-lg w-full p-2"
+        />
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-gray-700 mb-1">Alamat</label>
+        <textarea
+          name="alamat"
+          class="border border-gray-300 rounded-lg w-full p-2"
+          rows="2"
+        ></textarea>
+      </div>
+      <div class="md:col-span-2 flex justify-end">
+        <button
+          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow"
+        >
+          Tambah
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ✅ Tabel Data Jemaat -->
+  <div class="bg-white p-6 rounded-lg shadow">
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">📄 Daftar Jemaat</h2>
+    <div class="overflow-x-auto">
+      <table
+        class="min-w-full text-sm text-left text-gray-700 border border-gray-200"
+      >
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 border">#</th>
+            <th class="px-4 py-2 border">Nama</th>
+            <th class="px-4 py-2 border">Tanggal Lahir</th>
+            <th class="px-4 py-2 border">Jenis Kelamin</th>
+            <th class="px-4 py-2 border">Alamat</th>
+            <th class="px-4 py-2 border">No HP</th>
+            <th class="px-4 py-2 border text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for jemaat in jemaats %}
+          <tr class="border-t hover:bg-gray-50">
+            <td class="px-4 py-2 border">{{ loop.index }}</td>
+            <td class="px-4 py-2 border">{{ jemaat.nama }}</td>
+            <td class="px-4 py-2 border">{{ jemaat.tanggal_lahir or '-' }}</td>
+            <td class="px-4 py-2 border">{{ jemaat.jenis_kelamin or '-' }}</td>
+            <td class="px-4 py-2 border">{{ jemaat.alamat or '-' }}</td>
+            <td class="px-4 py-2 border">{{ jemaat.no_hp or '-' }}</td>
+            <td class="px-4 py-2 border text-center">
+              <button
+                onclick="openEditModal('{{ jemaat.id }}', '{{ jemaat.nama }}', '{{ jemaat.tanggal_lahir }}', '{{ jemaat.jenis_kelamin }}', '{{ jemaat.alamat }}', '{{ jemaat.no_hp }}')"
+                class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded"
+              >
+                Edit
+              </button>
+              <a
+                href="{{ url_for('admin.delete_jemaat', id=jemaat.id) }}"
+                onclick="return confirm('Yakin ingin menghapus data ini?')"
+                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                >Hapus</a
+              >
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="text-center py-4 text-gray-500">
+              Belum ada data jemaat.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Modal Edit Jemaat -->
+<div
+  id="editModal"
+  class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">
+      ✏️ Edit Data Jemaat
+      <form id="editForm" method="POST" action="">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 mb-1">Nama Jemaat</label>
+            <input
+              type="text"
+              name="nama"
+              id="edit_nama"
+              class="border border-gray-300 rounded-lg w-full p-2"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Tanggal Lahir</label>
+            <input
+              type="date"
+              name="tanggal_lahir"
+              id="edit_tanggal_lahir"
+              class="border border-gray-300 rounded-lg w-full p-2"
+            />
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">Jenis Kelamin</label>
+            <select
+              name="jenis_kelamin"
+              id="edit_jenis_kelamin"
+              class="border border-gray-300 rounded-lg w-full p-2"
+            >
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1">No HP</label>
+            <input
+              type="text"
+              name="no_hp"
+              id="edit_no_hp"
+              class="border border-gray-300 rounded-lg w-full p-2"
+            />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-gray-700 mb-1">Alamat</label>
+            <textarea
+              name="alamat"
+              id="edit_alamat"
+              class="border border-gray-300 rounded-lg w-full p-2"
+              rows="2"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-4 mt-6">
+          <button
+            type="button"
+            onclick="closeModal()"
+            class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded-lg"
+          >
+            Batal
+          </button>
+          <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+          >
+            Simpan
+          </button>
+        </div>
+      </form>
+
+      <script>
+        function openEditModal(
+          id,
+          nama,
+          tanggal_lahir,
+          jenis_kelamin,
+          alamat,
+          no_hp
+        ) {
+          document.getElementById("editModal").classList.remove("hidden");
+          document.getElementById("edit_nama").value = nama;
+          document.getElementById("edit_tanggal_lahir").value = tanggal_lahir;
+          document.getElementById("edit_jenis_kelamin").value = jenis_kelamin;
+          document.getElementById("edit_alamat").value = alamat;
+          document.getElementById("edit_no_hp").value = no_hp;
+          document.getElementById(
+            "editForm"
+          ).action = `/admin/jemaat/update/${id}`;
+        }
+
+        function closeModal() {
+          document.getElementById("editModal").classList.add("hidden");
+        }
+      </script>
+
+      {% endblock %}
+    </h2>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+{% extends "base.html" %} {% block title %}Daftar Jemaat - Staff{% endblock %}
+{% block content %}
+
+<div class="max-w-6xl mx-auto bg-white mt-10 p-8 rounded-xl shadow">
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">📋 Daftar Jemaat</h1>
+
+  <!-- Tidak ada tombol tambah jemaat -->
+  <!-- Tombol Kembali ke Dashboard -->
+  <div class="mb-6">
+    <a
+      href="{{ url_for('staff.staff_dashboard') }}"
+      class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg shadow transition"
+    >
+      ← Kembali ke Dashboard Staff
+    </a>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-300 text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-4 py-2">#</th>
+          <th class="border px-4 py-2">Nama</th>
+          <th class="border px-4 py-2">Tgl Lahir</th>
+          <th class="border px-4 py-2">JK</th>
+          <th class="border px-4 py-2">Alamat</th>
+          <th class="border px-4 py-2">No HP</th>
+          <th class="border px-4 py-2 text-center">Aksi</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for jemaat in jemaats %}
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">{{ loop.index }}</td>
+          <td class="border px-4 py-2">{{ jemaat.nama }}</td>
+          <td class="border px-4 py-2">{{ jemaat.tanggal_lahir or "-" }}</td>
+          <td class="border px-4 py-2">{{ jemaat.jenis_kelamin or "-" }}</td>
+          <td class="border px-4 py-2">{{ jemaat.alamat or "-" }}</td>
+          <td class="border px-4 py-2">{{ jemaat.no_hp or "-" }}</td>
+
+          <td class="border px-4 py-2 text-center">
+            <a
+              href="{{ url_for('staff.jemaat_edit', id=jemaat.id) }}"
+              class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+            >
+              Edit
+            </a>
+
+            <form
+              action="{{ url_for('staff.jemaat_delete', id=jemaat.id) }}"
+              method="POST"
+              style="display: inline-block"
+              onsubmit="return confirm('Yakin ingin menghapus data jemaat ini?');"
+            >
+              <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+              />
+              <button
+                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+              >
+                Hapus
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center py-4 text-gray-500">
+            Belum ada data jemaat.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

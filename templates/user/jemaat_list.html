@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block title %}Daftar Jemaat{% endblock %} {% block
+content %}
+
+<div class="max-w-6xl mx-auto bg-white mt-10 p-8 rounded-xl shadow">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">📋 Daftar Jemaat</h1>
+
+    <a
+      href="{{ url_for('user.user_dashboard') }}"
+      class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg shadow"
+    >
+      ← Kembali ke Dashboard
+    </a>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full border border-gray-300 text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-4 py-2">#</th>
+          <th class="border px-4 py-2">Nama</th>
+          <th class="border px-4 py-2">Tgl Lahir</th>
+          <th class="border px-4 py-2">JK</th>
+          <th class="border px-4 py-2">Alamat</th>
+          <th class="border px-4 py-2">No HP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for jemaat in jemaats %}
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">{{ loop.index }}</td>
+          <td class="border px-4 py-2">{{ jemaat.nama }}</td>
+          <td class="border px-4 py-2">{{ jemaat.tanggal_lahir or "-" }}</td>
+          <td class="border px-4 py-2">{{ jemaat.jenis_kelamin or "-" }}</td>
+          <td class="border px-4 py-2">{{ jemaat.alamat or "-" }}</td>
+          <td class="border px-4 py-2">{{ jemaat.no_hp or "-" }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center py-4 text-gray-500">
+            Belum ada data jemaat.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Kelola Role{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center gap-3">
+      <a
+        href="{{ url_for('dashboard_admin') }}"
+        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition"
+      >
+        ← Kembali ke Dashboard
+      </a>
+      <h1 class="text-3xl font-bold text-blue-800">🛠️ Kelola Role Pengguna</h1>
+    </div>
+
+    <a
+      href="{{ url_for('auth.logout') }}"
+      class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+    >
+      Logout
+    </a>
+  </div>
+
+  <!-- Tabel Role Management -->
+  <div class="bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-xl font-semibold mb-4 text-gray-700">📋 Daftar User & Role</h2>
+
+    <table class="min-w-full border border-gray-300 rounded-lg">
+      <thead class="bg-blue-600 text-white">
+        <tr>
+          <th class="py-2 px-4 text-left">ID</th>
+          <th class="py-2 px-4 text-left">Username</th>
+          <th class="py-2 px-4 text-left">Role Saat Ini</th>
+          <th class="py-2 px-4 text-center">Ubah Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="py-2 px-4">{{ user.id }}</td>
+          <td class="py-2 px-4 font-medium">{{ user.username }}</td>
+          <td class="py-2 px-4 text-gray-700">{{ user.role }}</td>
+          <td class="py-2 px-4 text-center">
+            <form method="POST" class="flex justify-center items-center gap-2">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <input type="hidden" name="user_id" value="{{ user.id }}" />
+              <select
+                name="role"
+                class="border rounded p-1"
+                onchange="this.form.submit()"
+              >
+                <option value="admin" {% if user.role=='admin' %}selected{% endif %}>Admin</option>
+                <option value="staff" {% if user.role=='staff' %}selected{% endif %}>Staff</option>
+                <option value="user" {% if user.role=='user' %}selected{% endif %}>User</option>
+              </select>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="text-center py-4 text-gray-500">
+            Belum ada user terdaftar.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

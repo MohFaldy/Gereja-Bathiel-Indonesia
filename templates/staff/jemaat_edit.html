@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Edit Jemaat - Staff{% endblock %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto bg-white mt-10 p-8 rounded-xl shadow">
+
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">✏️ Edit Data Jemaat</h1>
+
+  <form action="{{ url_for('staff.jemaat_edit', id=jemaat.id) }}" method="POST"
+        class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    {{ form.hidden_tag() }}
+
+    <div>
+      <label class="text-gray-700 font-medium">Nama Jemaat</label>
+      <input type="text" name="nama" value="{{ jemaat.nama }}" class="w-full border border-gray-300 rounded-lg p-2 mt-1" required>
+    </div>
+
+    <div>
+      <label class="text-gray-700 font-medium">Tanggal Lahir</label>
+      <input type="date" name="tanggal_lahir" value="{{ jemaat.tanggal_lahir }}" class="w-full border border-gray-300 rounded-lg p-2 mt-1">
+    </div>
+
+    <div>
+      <label class="text-gray-700 font-medium">Jenis Kelamin</label>
+      <select name="jenis_kelamin" class="w-full border border-gray-300 rounded-lg p-2 mt-1">
+        <option value="Laki-laki" {% if jemaat.jenis_kelamin == "Laki-laki" %}selected{% endif %}>Laki-laki</option>
+        <option value="Perempuan" {% if jemaat.jenis_kelamin == "Perempuan" %}selected{% endif %}>Perempuan</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="text-gray-700 font-medium">Nomor HP</label>
+      <input type="text" name="no_hp" value="{{ jemaat.no_hp }}" class="w-full border border-gray-300 rounded-lg p-2 mt-1">
+    </div>
+
+    <div class="md:col-span-2">
+      <label class="text-gray-700 font-medium">Alamat</label>
+      <textarea name="alamat" rows="3" class="w-full border border-gray-300 rounded-lg p-2 mt-1">{{ jemaat.alamat }}</textarea>
+    </div>
+
+    <div class="md:col-span-2 flex justify-between pt-4">
+      <a href="{{ url_for('staff.jemaat_list') }}"
+        class="bg-gray-300 hover:bg-gray-400 text-black px-6 py-2 rounded-lg">
+        Kembali ke Daftar Jemaat
+      </a>
+
+      <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+        Simpan Perubahan
+      </button>
+    </div>
+
+  </form>
+
+</div>
+
+{% endblock %}

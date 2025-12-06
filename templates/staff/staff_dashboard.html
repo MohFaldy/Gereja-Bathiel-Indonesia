@@ -1,0 +1,80 @@
+{% extends "base.html" %} {% block title %}Dashboard Staff{% endblock %} {%
+block content %}
+<div class="min-h-screen bg-gray-100 flex flex-col">
+  <!-- Navbar -->
+  <nav
+    class="bg-indigo-700 text-white px-6 py-4 flex justify-between items-center shadow"
+  >
+    <div class="text-2xl font-bold tracking-wide">✝️ Sistem Jemaat Gereja</div>
+    <div class="flex items-center gap-4">
+      <span class="font-medium">Halo, Staff 🧑‍💼</span>
+      <a
+        href="{{ url_for('auth.logout') }}"
+        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200"
+      >
+        Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-grow p-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Dashboard Staff</h1>
+
+    <!-- Menu Cards -->
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- Tambah Data Jemaat -->
+      <a
+        href="{{ url_for('staff.jemaat_add') }}"
+        class="bg-white hover:shadow-lg rounded-2xl p-6 border border-gray-200 transition duration-300"
+      >
+        <h2 class="text-xl font-semibold mb-2 text-indigo-700">
+          Tambah Data Jemaat
+        </h2>
+        <p class="text-gray-600 text-sm">
+          Masukkan data jemaat baru ke dalam sistem gereja.
+        </p>
+      </a>
+
+      <!-- Edit Data Jemaat -->
+      <a
+        href="{{ url_for('staff.jemaat_list') }}"
+        class="bg-white hover:shadow-lg rounded-2xl p-6 border border-gray-200 transition duration-300"
+      >
+        <h2 class="text-xl font-semibold mb-2 text-indigo-700">
+          Edit atau Lihat Data Jemaat
+        </h2>
+        <p class="text-gray-600 text-sm">
+          Ubah atau akses daftar jemaat yang sudah terdaftar.
+        </p>
+      </a>
+    </div>
+  </main>
+
+  <!-- Statistik Data Jemaat (DIPINDAHKAN KE BAWAH) -->
+  <section class="bg-white p-8 shadow-inner">
+    <h2 class="text-2xl font-semibold mb-4 text-gray-700 text-center">
+      📊 Statistik Data Jemaat
+    </h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-xl shadow text-center">
+        <p class="text-4xl font-bold text-indigo-600">120</p>
+        <p class="text-gray-600">Total Jemaat</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow text-center">
+        <p class="text-4xl font-bold text-green-600">5</p>
+        <p class="text-gray-600">Data Baru Minggu Ini</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow text-center">
+        <p class="text-4xl font-bold text-yellow-500">3</p>
+        <p class="text-gray-600">Perlu Diperbarui</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-200 text-center py-4 text-gray-600 text-sm">
+    © 2025 Gereja Hope Ministry | Dibuat dengan ❤️ oleh Tim IT
+  </footer>
+</div>
+{% endblock %}

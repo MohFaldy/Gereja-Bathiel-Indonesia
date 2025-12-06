@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register Akun Baru</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+      /* Style sederhana untuk pesan error */
+      .error-message {
+        color: #dc2626; /* red-600 */
+        font-size: 0.875rem; /* text-sm */
+        margin-top: 0.25rem;
+      }
+      .input-error {
+        border-color: #dc2626; /* red-600 */
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+      <h2 class="text-2xl font-bold text-center text-gray-900">
+        Buat Akun Baru
+      </h2>
+
+      <!-- Menampilkan Flashed Messages (seperti "Admin hanya boleh satu!") -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="p-4 mb-4 text-sm rounded-lg {% if category == 'danger' %} bg-red-100 text-red-700 {% elif category == 'success' %} bg-green-100 text-green-700 {% else %} bg-blue-100 text-blue-700 {% endif %}"
+        role="alert"
+      >
+        {{ message }}
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
+
+      <form
+        method="POST"
+        action="{{ url_for('auth.register') }}"
+        class="space-y-6"
+      >
+        <!-- PENTING: CSRF Token -->
+        {{ form.hidden_tag() }}
+
+        <!-- Username Field -->
+        <div>
+          {{ form.username.label(class="block text-sm font-medium
+          text-gray-700") }} {{ form.username(class="mt-1 block w-full px-3 py-2
+          bg-white border border-gray-300 rounded-md shadow-sm
+          placeholder-gray-400 focus:outline-none focus:ring-indigo-500
+          focus:border-indigo-500 sm:text-sm" + (" input-error" if
+          form.username.errors else ""), placeholder="Masukkan Username") }} {%
+          for error in form.username.errors %}
+          <p class="error-message">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <!-- Email Field -->
+        <div>
+          {{ form.email.label(class="block text-sm font-medium text-gray-700")
+          }} {{ form.email(class="mt-1 block w-full px-3 py-2 bg-white border
+          border-gray-300 rounded-md shadow-sm placeholder-gray-400
+          focus:outline-none focus:ring-indigo-500 focus:border-indigo-500
+          sm:text-sm" + (" input-error" if form.email.errors else ""),
+          placeholder="Masukkan Email") }} {% for error in form.email.errors %}
+          <p class="error-message">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          {{ form.password.label(class="block text-sm font-medium
+          text-gray-700") }} {{ form.password(class="mt-1 block w-full px-3 py-2
+          bg-white border border-gray-300 rounded-md shadow-sm
+          placeholder-gray-400 focus:outline-none focus:ring-indigo-500
+          focus:border-indigo-500 sm:text-sm" + (" input-error" if
+          form.password.errors else ""), placeholder="Buat Password") }} {% for
+          error in form.password.errors %}
+          <p class="error-message">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div>
+          {{ form.confirm_password.label(class="block text-sm font-medium
+          text-gray-700") }} {{ form.confirm_password(class="mt-1 block w-full
+          px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm
+          placeholder-gray-400 focus:outline-none focus:ring-indigo-500
+          focus:border-indigo-500 sm:text-sm" + (" input-error" if
+          form.confirm_password.errors else ""), placeholder="Konfirmasi
+          Password Anda") }} {% for error in form.confirm_password.errors %}
+          <p class="error-message">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <!-- Role Field -->
+        <div>
+          {{ form.role.label(class="block text-sm font-medium text-gray-700") }}
+          {{ form.role(class="mt-1 block w-full px-3 py-2 bg-white border
+          border-gray-300 rounded-md shadow-sm focus:outline-none
+          focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+        </div>
+
+        <div>
+          {{ form.submit(class="w-full flex justify-center py-2 px-4 border
+          border-transparent rounded-md shadow-sm text-sm font-medium text-white
+          bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2
+          focus:ring-offset-2 focus:ring-indigo-500") }}
+        </div>
+      </form>
+      <p class="text-center text-sm text-gray-600">
+        Sudah punya akun?
+        <a
+          href="{{ url_for('auth.login') }}"
+          class="font-medium text-indigo-600 hover:text-indigo-500"
+          >Login di sini</a
+        >
+      </p>
+    </div>
+  </body>
+</html>

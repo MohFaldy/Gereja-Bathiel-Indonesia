@@ -1,0 +1,43 @@
+{% extends "base.html" %} {% block title %}Dashboard User{% endblock %} {% block
+content %}
+<div
+  class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex flex-col"
+>
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md px-6 py-3 flex justify-between items-center">
+    <h1 class="text-xl font-bold text-blue-700">Sistem Pencatatan Jemaat</h1>
+    <a
+      href="{{ url_for('auth.logout') }}"
+      class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200"
+    >
+      Logout
+    </a>
+  </nav>
+
+  <!-- Main content -->
+  <main class="flex-grow flex flex-col items-center justify-center p-6">
+    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-lg text-center">
+      <h2 class="text-3xl font-bold mb-4 text-blue-800">
+        Selamat Datang, {{ current_user.username }} 🙋‍♂️
+      </h2>
+      <p class="text-gray-600 mb-6">
+        Anda dapat melihat data jemaat yang telah terdaftar dalam sistem.
+      </p>
+
+      <div class="grid grid-cols-1 gap-4">
+        <a
+          href="{{ url_for('user.jemaat_list_user') }}"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition duration-200"
+        >
+          📋 Lihat Data Jemaat
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-4 text-gray-600 text-sm">
+    &copy; {{ current_year or 2025 }} Gereja XYZ — Sistem Pencatatan Jemaat
+  </footer>
+</div>
+{% endblock %}
