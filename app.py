@@ -135,6 +135,17 @@ def load_user(user_id):
 
 
 # =======================================================
+# COMMANDS
+# =======================================================
+@app.cli.command("init-db")
+def init_db_command():
+    """Membuat tabel database."""
+    db.create_all()
+    print("✅ Tabel database berhasil dibuat.")
+
+
+
+# =======================================================
 # 8. REGISTER BLUEPRINTS
 # =======================================================
 app.register_blueprint(auth_bp)
