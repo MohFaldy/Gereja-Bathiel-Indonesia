@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, request, url_for, flash,
 from flask_login import login_user, logout_user, current_user
 from models import User, db, bcrypt, mail
 from utils import admin_exists
+from threading import Thread
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
 from forms import LoginForm, RegisterForm # Impor form yang baru dibuat
@@ -15,8 +16,18 @@ def generate_verification_token(email):
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     return serializer.dumps(email, salt='email-verification-salt')
 
+def send_async_email(app, msg):
+    """Fungsi untuk mengirim email di background thread."""
+    with app.app_context():
+        try:
+            mail.send(msg)
+        except Exception as e:
+            # Log error jika pengiriman di background gagal
+            app.logger.error(f"Gagal mengirim email di background thread: {e}")
+
+
 def send_verification_email(user_email):
-    """Mengirim email yang berisi link verifikasi."""
+    """Mempersiapkan dan mengirim email verifikasi di background thread."""
     try:
         token = generate_verification_token(user_email)
         # _external=True untuk menghasilkan URL absolut (dengan domain)
@@ -29,10 +40,13 @@ def send_verification_email(user_email):
             sender=("Gereja bethel indonesia", current_app.config['MAIL_USERNAME']), # <-- Tambahkan ini
             recipients=[user_email],
             html=html)
-        mail.send(msg)
+        # Jalankan pengiriman email di thread terpisah
+        app = current_app._get_current_object()
+        thread = Thread(target=send_async_email, args=[app, msg])
+        thread.start()
     except Exception as e:
         current_app.logger.error(f"Gagal mengirim email verifikasi ke {user_email}: {e}")
-        # Lemparkan kembali error agar bisa ditangani oleh fungsi pemanggil (register)
+        # Lemparkan kembali error jika persiapan email gagal (bukan saat pengiriman)
         raise e
 
 # ====================================================
