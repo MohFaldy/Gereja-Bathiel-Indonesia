@@ -46,12 +46,17 @@ app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'true').lower() in ['true
 app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'false').lower() in ['true', '1', 't']
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME') # <-- ISI DI FILE .env
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD') # <-- ISI DI FILE .env
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', app.config['MAIL_USERNAME'])
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
 # Peringatan jika kredensial email tidak diatur
 if not app.config.get('MAIL_USERNAME') or not app.config.get('MAIL_PASSWORD'):
     app.logger.warning(
         "PERINGATAN: MAIL_USERNAME atau MAIL_PASSWORD tidak diatur di file .env. Fitur email tidak akan berfungsi."
+    )
+
+if not app.config.get('MAIL_DEFAULT_SENDER'):
+    app.logger.warning(
+        "PERINGATAN: MAIL_DEFAULT_SENDER tidak diatur di file .env. Fitur email tidak akan berfungsi dengan benar."
     )
 
 # =======================================================
