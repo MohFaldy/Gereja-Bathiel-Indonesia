@@ -25,7 +25,16 @@ def send_async_email(app, msg):
             api_key = app.config['MAIL_USERNAME']
             api_secret = app.config['MAIL_PASSWORD']
             mailjet = Client(auth=(api_key, api_secret), version='v3.1')
-            
+
+            # =======================================================
+            # KODE DEBUGGING - HAPUS SETELAH MASALAH SELESAI
+            # =======================================================
+            app.logger.info("--- MEMULAI DEBUG EMAIL DI RAILWAY ---")
+            app.logger.info(f"API Key Diterima: '{api_key}'")
+            app.logger.info(f"Secret Key Diterima: '{api_secret}'")
+            app.logger.info(f"Sender Diterima: '{app.config.get('MAIL_DEFAULT_SENDER')}'")
+            app.logger.info("--- AKHIR DEBUG EMAIL ---")
+
             # Kirim email menggunakan HTTP API
             result = mailjet.send.create(data=msg)
             
