@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from models import User, Jemaat, db, bcrypt
 from utils import sanitize_input, admin_exists
-from forms import JemaatForm # <-- Impor JemaatForm
+from forms import JemaatForm, AdminAddUserForm
 import re
 
 admin_bp = Blueprint('admin', __name__)
@@ -26,60 +26,42 @@ def admin_dashboard():
 @admin_bp.route('/admin/users')
 @login_required
 def manage_users():
+    form = AdminAddUserForm()
     users = User.query.all()
-    return render_template('admin/user_management.html', users=users)
+    return render_template('admin/user_management.html', users=users, form=form)
 
 
 @admin_bp.route('/admin/users/add', methods=['POST'])
 @login_required
 def add_user():
+    form = AdminAddUserForm()
+    if form.validate_on_submit():
+        role = form.role.data
+        if role == "admin" and admin_exists():
+            flash("Admin hanya boleh satu!", "danger")
+        else:
+            hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            new_user = User(
+                username=form.username.data,
+                email=form.email.data,
+                password=hashed_pw,
+                role=role,
+                is_verified=True  # User yang dibuat admin langsung terverifikasi
+            )
+            db.session.add(new_user)
+            try:
+                db.session.commit()
+                flash("User baru berhasil ditambahkan!", "success")
+                current_app.logger.info(f"Admin '{current_user.username}' menambahkan user baru: '{new_user.username}'.")
+            except Exception as e:
+                db.session.rollback()
+                current_app.logger.error(f"Admin '{current_user.username}' gagal menambahkan user: {e}")
+                flash("Terjadi kesalahan saat menambahkan user.", "danger")
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{getattr(form, field).label.text}: {error}", "danger")
 
-    username = sanitize_input(request.form.get('username'))
-    email = sanitize_input(request.form.get('email'))
-    password = sanitize_input(request.form.get('password'))
-    role = sanitize_input(request.form.get('role'))
-
-    # ------------ VALIDASI ----------
-    if not username or not email or not password or not role:
-        flash("Semua field wajib diisi!", "danger")
-        return redirect(url_for('admin.manage_users'))
-
-    if role not in VALID_ROLES:
-        flash("Role tidak valid!", "danger")
-        return redirect(url_for('admin.manage_users'))
-
-    if role == "admin" and admin_exists():
-        flash("Admin hanya boleh satu!", "danger")
-        return redirect(url_for('admin.manage_users'))
-
-    if not re.match(USERNAME_PATTERN, username):
-        flash("Username tidak valid (3–20 karakter huruf/angka/._-)", "danger")
-        return redirect(url_for('admin.manage_users'))
-
-    if User.query.filter_by(username=username).first() or User.query.filter_by(email=email).first():
-        flash("Username sudah digunakan!", "danger")
-        return redirect(url_for('admin.manage_users'))
-
-    # Hash password
-    hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    new_user = User(
-        username=username,
-        email=email,
-        password=hashed_pw,
-        role=role,
-        is_verified=True  # User yang dibuat admin langsung terverifikasi
-    )
-    db.session.add(new_user)
-    try:
-        db.session.commit()
-        flash("User baru berhasil ditambahkan!", "success")
-        # Log aktivitas
-        current_app.logger.info(f"Admin '{current_user.username}' (ID: {current_user.id}) menambahkan user baru: '{new_user.username}' (ID: {new_user.id}).")
-    except Exception as e:
-        db.session.rollback()
-        current_app.logger.error(f"Admin '{current_user.username}' gagal menambahkan user: {e}")
-        flash("Terjadi kesalahan saat menambahkan user.", "danger")
     return redirect(url_for('admin.manage_users'))
 
 
@@ -119,43 +101,35 @@ def delete_user(id):
 @admin_bp.route('/admin/roles', methods=['GET', 'POST'])
 @login_required
 def manage_roles():
-    users = User.query.all()
+
 
     if request.method == "POST":
 
         user_id = sanitize_input(request.form.get('user_id'))
         new_role = sanitize_input(request.form.get('role'))
 
-        if new_role not in VALID_ROLES:
-            flash("Role tidak valid!", "danger")
-            return redirect(url_for('admin.manage_roles'))
+
 
         user = User.query.get(user_id)
-        if not user:
-            flash("User tidak ditemukan!", "danger")
-            return redirect(url_for('admin.manage_roles'))
-
-        # ❗ admin tidak boleh diturunkan menjadi staff/user
-        if user.role == "admin" and new_role != "admin":
-            flash("Admin tidak boleh diubah menjadi role lain!", "danger")
-            return redirect(url_for('admin.manage_roles'))
-
-        # ❗ Cegah admin kedua
-        if new_role == "admin" and admin_exists():
-            flash("Admin hanya boleh satu!", "danger")
-            return redirect(url_for('admin.manage_roles'))
-
-        user.role = new_role
-        try:
-            db.session.commit()
-            flash("Role berhasil diperbarui!", "success")
-            # Log aktivitas
-            current_app.logger.info(f"Admin '{current_user.username}' (ID: {current_user.id}) mengubah role user '{user.username}' (ID: {user.id}) menjadi '{new_role}'.")
-        except Exception as e:
-            db.session.rollback()
-            current_app.logger.error(f"Admin '{current_user.username}' gagal memperbarui role untuk user (ID: {user_id}): {e}")
-            flash("Terjadi kesalahan saat memperbarui role.", "danger")
+        if not user or new_role not in VALID_ROLES:
+            flash("User atau Role tidak valid!", "danger")
+        elif user.role == "admin" and new_role != "admin" and User.query.filter_by(role="admin").count() == 1:
+            flash("Tidak bisa mengubah role admin satu-satunya!", "danger")
+        elif new_role == "admin" and user.role != "admin" and admin_exists():
+            flash("Hanya boleh ada satu admin!", "danger")
+        else:
+            user.role = new_role
+            try:
+                db.session.commit()
+                flash("Role berhasil diperbarui!", "success")
+                current_app.logger.info(f"Admin '{current_user.username}' mengubah role user '{user.username}' menjadi '{new_role}'.")
+            except Exception as e:
+                db.session.rollback()
+                current_app.logger.error(f"Admin '{current_user.username}' gagal memperbarui role untuk user (ID: {user_id}): {e}")
+                flash("Terjadi kesalahan saat memperbarui role.", "danger")
         return redirect(url_for('admin.manage_roles'))
+
+    users = User.query.all()
 
     return render_template('admin/role_management.html', users=users)
 

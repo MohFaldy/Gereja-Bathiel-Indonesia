@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, current_user
 from models import User, db, bcrypt, mail
 from utils import admin_exists
 from threading import Thread
+from mailjet_rest import Client
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
 from forms import LoginForm, RegisterForm # Impor form yang baru dibuat
@@ -20,14 +21,23 @@ def send_async_email(app, msg):
     """Fungsi untuk mengirim email di background thread."""
     with app.app_context():
         try:
-            mail.send(msg)
+            # Inisialisasi Mailjet Client
+            api_key = app.config['MAIL_USERNAME']
+            api_secret = app.config['MAIL_PASSWORD']
+            mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+            
+            # Kirim email menggunakan HTTP API
+            result = mailjet.send.create(data=msg)
+            
+            if result.status_code != 200:
+                app.logger.error(f"Mailjet API Error: {result.status_code} - {result.json()}")
         except Exception as e:
             # Log error jika pengiriman di background gagal
             app.logger.error(f"Gagal mengirim email di background thread: {e}")
 
 
 def send_verification_email(user_email):
-    """Mempersiapkan dan mengirim email verifikasi di background thread."""
+    """Mempersiapkan dan mengirim email verifikasi menggunakan Mailjet HTTP API."""
     try:
         token = generate_verification_token(user_email)
         # _external=True untuk menghasilkan URL absolut (dengan domain)
@@ -35,14 +45,23 @@ def send_verification_email(user_email):
         
         html = render_template('emails/verify_email.html', verify_url=verify_url)
         subject = "Verifikasi Akun Anda"
-        msg = Message(
-            subject,
-            sender=current_app.config['MAIL_DEFAULT_SENDER'], # <-- Tambahkan ini
-            recipients=[user_email],
-            html=html)
+        # Buat payload data untuk Mailjet API
+        # Ambil nama dan email dari MAIL_DEFAULT_SENDER
+        sender_string = current_app.config['MAIL_DEFAULT_SENDER']
+        sender_name = sender_string.split('<')[0].strip()
+        sender_email = sender_string.split('<')[1].replace('>', '').strip()
+
+        data = {
+            'Messages': [{
+                "From": {"Email": sender_email, "Name": sender_name},
+                "To": [{"Email": user_email}],
+                "Subject": subject,
+                "HTMLPart": html
+            }]
+        }
         # Jalankan pengiriman email di thread terpisah
         app = current_app._get_current_object()
-        thread = Thread(target=send_async_email, args=[app, msg])
+        thread = Thread(target=send_async_email, args=[app, data])
         thread.start()
     except Exception as e:
         current_app.logger.error(f"Gagal mengirim email verifikasi ke {user_email}: {e}")

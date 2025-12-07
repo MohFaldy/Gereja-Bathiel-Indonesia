@@ -36,6 +36,27 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(message="Username harus diisi.")])
     password = PasswordField('Password', validators=[DataRequired(message="Password harus diisi.")])
     submit = SubmitField('Login')
+    
+class AdminAddUserForm(FlaskForm):
+    """Form untuk admin menambahkan user baru, dengan validasi yang tepat."""
+    username = StringField('Username', validators=[
+        DataRequired(message="Username harus diisi."),
+        Length(min=3, max=20),
+        Regexp('^[a-zA-Z0-9_.-]+$', message='Username hanya boleh berisi huruf, angka, titik, underscore, atau strip.')
+    ])
+    email = StringField('Email', validators=[DataRequired(message="Email harus diisi."), Email(message="Format email tidak valid.")])
+    password = PasswordField('Password', validators=[DataRequired(message="Password harus diisi."), Length(min=6)])
+    role = SelectField('Role', choices=[('user', 'User'), ('staff', 'Staff'), ('admin', 'Admin')], validators=[DataRequired()])
+    submit = SubmitField('Tambah User')
+
+    def validate_username(self, username):
+        if User.query.filter_by(username=username.data).first():
+            raise ValidationError('Username sudah digunakan!')
+
+    def validate_email(self, email):
+        if User.query.filter_by(email=email.data).first():
+            raise ValidationError('Email sudah terdaftar!')
+
 
 class JemaatForm(FlaskForm):
     nama = StringField('Nama Jemaat', validators=[
