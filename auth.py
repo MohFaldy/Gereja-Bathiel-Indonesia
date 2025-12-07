@@ -33,7 +33,7 @@ def send_async_email(app, msg):
             app.logger.info(f"API Key Diterima: '{api_key}'")
             app.logger.info(f"Secret Key Diterima: '{api_secret}'")
             app.logger.info(f"Sender Diterima: '{app.config.get('MAIL_DEFAULT_SENDER')}'")
-            app.logger.info("--- AKHIR DEBUG EMAIL ---")
+            app.logger.info("--- AKHIR DEBUG EMAIL --")
 
             # Kirim email menggunakan HTTP API
             result = mailjet.send.create(data=msg)
