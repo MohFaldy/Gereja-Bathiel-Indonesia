@@ -37,7 +37,7 @@ def send_verification_email(user_email):
         subject = "Verifikasi Akun Anda"
         msg = Message(
             subject,
-            sender=("Gereja bethel indonesia", current_app.config['MAIL_USERNAME']), # <-- Tambahkan ini
+            sender=current_app.config['MAIL_DEFAULT_SENDER'], # <-- Tambahkan ini
             recipients=[user_email],
             html=html)
         # Jalankan pengiriman email di thread terpisah
