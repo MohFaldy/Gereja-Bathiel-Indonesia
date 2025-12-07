@@ -57,6 +57,11 @@ class AdminAddUserForm(FlaskForm):
         if User.query.filter_by(email=email.data).first():
             raise ValidationError('Email sudah terdaftar!')
 
+class RoleManagementForm(FlaskForm):
+    """Form untuk mengelola role user."""
+    user_id = StringField('User ID', validators=[DataRequired()])
+    role = SelectField('Role', choices=[('user', 'User'), ('staff', 'Staff'), ('admin', 'Admin')], validators=[DataRequired()])
+    submit = SubmitField('Update Role')
 
 class JemaatForm(FlaskForm):
     nama = StringField('Nama Jemaat', validators=[

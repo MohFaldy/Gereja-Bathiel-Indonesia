@@ -26,15 +26,6 @@ def send_async_email(app, msg):
             api_secret = app.config['MAIL_PASSWORD']
             mailjet = Client(auth=(api_key, api_secret), version='v3.1')
 
-            # =======================================================
-            # KODE DEBUGGING - HAPUS SETELAH MASALAH SELESAI
-            # =======================================================
-            app.logger.info("--- MEMULAI DEBUG EMAIL DI RAILWAY ---")
-            app.logger.info(f"API Key Diterima: '{api_key}'")
-            app.logger.info(f"Secret Key Diterima: '{api_secret}'")
-            app.logger.info(f"Sender Diterima: '{app.config.get('MAIL_DEFAULT_SENDER')}'")
-            app.logger.info("--- AKHIR DEBUG EMAIL --")
-
             # Kirim email menggunakan HTTP API
             result = mailjet.send.create(data=msg)
             
@@ -56,9 +47,11 @@ def send_verification_email(user_email):
         subject = "Verifikasi Akun Anda"
         # Buat payload data untuk Mailjet API
         # Ambil nama dan email dari MAIL_DEFAULT_SENDER
-        sender_string = current_app.config['MAIL_DEFAULT_SENDER']
-        sender_name = sender_string.split('<')[0].strip()
-        sender_email = sender_string.split('<')[1].replace('>', '').strip()
+        sender_string = current_app.config.get('MAIL_DEFAULT_SENDER', '')
+        # Hapus kutip yang mungkin tidak sengaja ditambahkan dan parse
+        cleaned_sender = sender_string.strip().strip('"')
+        sender_name = cleaned_sender.split('<')[0].strip()
+        sender_email = cleaned_sender.split('<')[1].replace('>', '').strip()
 
         data = {
             'Messages': [{

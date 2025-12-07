@@ -2,8 +2,9 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from models import User, Jemaat, db, bcrypt
 from utils import sanitize_input, admin_exists
-from forms import JemaatForm, AdminAddUserForm
+from forms import JemaatForm, AdminAddUserForm, RoleManagementForm
 import re
+from roles_required import require_role
 
 admin_bp = Blueprint('admin', __name__)
 VALID_ROLES = ["admin", "staff", "user"]
@@ -16,6 +17,7 @@ PHONE_PATTERN = r'^[0-9+\- ]{6,20}$'
 # =====================================================
 @admin_bp.route('/admin/dashboard')
 @login_required
+@require_role('admin')
 def admin_dashboard():
     return render_template('admin/admin_dashboard.html')
 
@@ -25,6 +27,7 @@ def admin_dashboard():
 # =====================================================
 @admin_bp.route('/admin/users')
 @login_required
+@require_role('admin')
 def manage_users():
     form = AdminAddUserForm()
     users = User.query.all()
@@ -33,6 +36,7 @@ def manage_users():
 
 @admin_bp.route('/admin/users/add', methods=['POST'])
 @login_required
+@require_role('admin')
 def add_user():
     form = AdminAddUserForm()
     if form.validate_on_submit():
@@ -67,6 +71,7 @@ def add_user():
 
 @admin_bp.route('/admin/users/delete/<int:id>', methods=['POST']) # Tambahkan methods=['POST'] untuk keamanan
 @login_required
+@require_role('admin')
 def delete_user(id):
 
     user = User.query.get(id)
@@ -100,26 +105,24 @@ def delete_user(id):
 # =====================================================
 @admin_bp.route('/admin/roles', methods=['GET', 'POST'])
 @login_required
+@require_role('admin')
 def manage_roles():
-
-
-    if request.method == "POST":
-
-        user_id = sanitize_input(request.form.get('user_id'))
-        new_role = sanitize_input(request.form.get('role'))
-
-
-
+    form = RoleManagementForm()
+    if form.validate_on_submit():
+        user_id = form.user_id.data
+        new_role = form.role.data
+        
         user = User.query.get(user_id)
-        if not user or new_role not in VALID_ROLES:
+        if not user:
             flash("User atau Role tidak valid!", "danger")
         elif user.role == "admin" and new_role != "admin" and User.query.filter_by(role="admin").count() == 1:
             flash("Tidak bisa mengubah role admin satu-satunya!", "danger")
         elif new_role == "admin" and user.role != "admin" and admin_exists():
             flash("Hanya boleh ada satu admin!", "danger")
         else:
-            user.role = new_role
+
             try:
+                user.role = new_role
                 db.session.commit()
                 flash("Role berhasil diperbarui!", "success")
                 current_app.logger.info(f"Admin '{current_user.username}' mengubah role user '{user.username}' menjadi '{new_role}'.")
@@ -131,7 +134,8 @@ def manage_roles():
 
     users = User.query.all()
 
-    return render_template('admin/role_management.html', users=users)
+    # Kita kirim form ke template, meskipun hanya untuk CSRF token di GET request
+    return render_template('admin/role_management.html', users=users, form=form)
 
 
 # =====================================================
@@ -139,6 +143,7 @@ def manage_roles():
 # =====================================================
 @admin_bp.route('/admin/jemaat')
 @login_required
+@require_role('admin')
 def manage_jemaat():
     # Siapkan form kosong untuk modal 'Add Jemaat'
     form = JemaatForm()
@@ -148,6 +153,7 @@ def manage_jemaat():
 
 @admin_bp.route('/admin/jemaat/add', methods=['POST'])
 @login_required
+@require_role('admin')
 def add_jemaat():
     form = JemaatForm()
     if form.validate_on_submit():
@@ -178,6 +184,7 @@ def add_jemaat():
 
 @admin_bp.route('/admin/jemaat/update/<int:id>', methods=['POST'])
 @login_required
+@require_role('admin')
 def update_jemaat(id):
     jemaat = Jemaat.query.get_or_404(id)
     form = JemaatForm(request.form) # Ambil data dari form yang di-submit
@@ -202,6 +209,7 @@ def update_jemaat(id):
 
 @admin_bp.route('/admin/jemaat/delete/<int:id>', methods=['POST']) # Tambahkan methods=['POST'] untuk keamanan
 @login_required
+@require_role('admin')
 def delete_jemaat(id):
 
     # Tambahkan CSRF protection jika form delete adalah POST
